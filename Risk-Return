@@ -1,0 +1,34 @@
+import pandas as pd
+
+def calculate_sharpe_ratio(returns, risk_free_rate):
+  # Calculate the Sharpe ratio
+  sharpe_ratio = (returns - risk_free_rate).mean() / returns.std()
+  return sharpe_ratio
+
+def compare_investments(tickers, risk_free_rate):
+  # Load the stock data for each ticker
+  stock_data = {}
+  for ticker in tickers:
+    data = pd.read_csv(f"{ticker}.csv")
+    stock_data[ticker] = data
+  
+  # Calculate the returns for each ticker
+  returns = {}
+  for ticker, data in stock_data.items():
+    returns[ticker] = data["Adj Close"].pct_change()
+  
+  # Calculate the Sharpe ratio for each ticker
+  sharpe_ratios = {}
+  for ticker, ret in returns.items():
+    sharpe_ratios[ticker] = calculate_sharpe_ratio(ret, risk_free_rate)
+  
+  # Sort the Sharpe ratios in descending order
+  sorted_sharpe_ratios = {k: v for k, v in sorted(sharpe_ratios.items(), key=lambda item: item[1], reverse=True)}
+  
+  # Print the results
+  print("Investment\tSharpe Ratio")
+  for ticker, sharpe_ratio in sorted_sharpe_ratios.items():
+    print(f"{ticker}\t\t{sharpe_ratio:.2f}")
+
+# Example usage
+compare_investments(["AAPL", "GOOG", "MSFT"], 0.03)
